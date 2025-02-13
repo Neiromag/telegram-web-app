@@ -3,33 +3,111 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Заказ овощей</title>
+    <title>Заказ свежих овощей</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        body { font-family: Arial, sans-serif; text-align: center; }
-        .item { display: flex; justify-content: space-between; padding: 10px; }
-        button { margin-left: 10px; }
+        body {
+            font-family: 'Arial', sans-serif;
+            text-align: center;
+            background-color: #f8f9fa; /* Светлый фон */
+            color: #343a40; /* Темный текст для контраста */
+            padding: 20px;
+            margin: 0;
+        }
+
+        h2 {
+            color: #28a745; /* Зеленый цвет для заголовка */
+            margin-bottom: 20px;
+        }
+
+        #items-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center; /* Выравнивание элементов по центру */
+            width: 90%; /* Занимает 90% ширины контейнера */
+            max-width: 500px; /* Максимальная ширина контейнера */
+            margin: 0 auto; /* Центрирование контейнера на странице */
+        }
+
+        .item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center; /* Выравнивание элементов по вертикали по центру */
+            padding: 15px;
+            margin-bottom: 10px;
+            background-color: #ffffff; /* Белый фон для карточки товара */
+            border-radius: 10px; /* Закругленные углы */
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Легкая тень */
+            width: 100%; /* Карточка товара занимает всю ширину контейнера */
+        }
+
+        .item-name {
+            font-weight: bold;
+            color: #495057; /* Темно-серый цвет для названия товара */
+        }
+
+        .item-count {
+            margin-left: 10px;
+            color: #6c757d; /* Серый цвет для количества */
+        }
+
+        .button-group button {
+            background-color: #28a745; /* Зеленый цвет для кнопок */
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            margin: 0 5px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.3s ease; /* Плавный эффект при наведении */
+        }
+
+        .button-group button:hover {
+            background-color: #218838; /* Более темный зеленый при наведении */
+        }
+
+        #order-button {
+            background-color: #007bff; /* Синий цвет для кнопки "Отправить заказ" */
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.2em;
+            margin-top: 20px;
+            transition: background-color 0.3s ease;
+        }
+
+        #order-button:hover {
+            background-color: #0056b3; /* Более темный синий при наведении */
+        }
     </style>
 </head>
 <body>
-    <h2>Выберите овощи</h2>
-    <div id="items"></div>
-    <button onclick="sendOrder()">Отправить заказ</button>
-    
+    <h2>Выберите свежие овощи для заказа</h2>
+    <div id="items-container">
+        <div id="items"></div>
+    </div>
+    <button id="order-button" onclick="sendOrder()">Отправить заказ</button>
+
     <script>
         let items = [
             { name: "Помидоры", count: 0 },
             { name: "Огурцы", count: 0 },
-            { name: "Картошка", count: 0 }
+            { name: "Картофель", count: 0 } // Исправлено название "Картофель"
         ];
 
         function renderItems() {
             let html = "";
             items.forEach((item, index) => {
                 html += `<div class='item'>
-                            <span>${item.name}: ${item.count} кг</span>
-                            <button onclick='changeCount(${index}, 1)'>+1</button>
-                            <button onclick='changeCount(${index}, -1)'>-1</button>
+                            <span class='item-name'>${item.name}</span>
+                            <span class='item-count'>${item.count} кг</span>
+                            <div class='button-group'>
+                                <button onclick='changeCount(${index}, 1)'>+</button>
+                                <button onclick='changeCount(${index}, -1)'>-</button>
+                            </div>
                          </div>`;
             });
             document.getElementById("items").innerHTML = html;
