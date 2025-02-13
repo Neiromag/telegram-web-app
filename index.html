@@ -6,6 +6,7 @@
     <title>Заказ овощей</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
+        /* ... (ваш CSS, без изменений) ... */
         * {
             -webkit-tap-highlight-color: transparent;
             touch-action: manipulation;
@@ -251,11 +252,11 @@
 
         function createCategoriesHTML() {
             const container = document.getElementById('categories-container');
-            
+
             Object.entries(products).forEach(([categoryName, category]) => {
                 const categoryDiv = document.createElement('div');
                 categoryDiv.className = 'category';
-                
+
                 categoryDiv.innerHTML = `
                     <div class="category-title">
                         <span class="category-icon">${category.icon}</span>
@@ -278,7 +279,7 @@
                         </div>
                     `).join('')}
                 `;
-                
+
                 container.appendChild(categoryDiv);
             });
         }
@@ -286,7 +287,7 @@
         function updateCount(category, index, delta) {
             const item = products[category].items[index];
             const newCount = Math.max(0, item.count + delta);
-            
+
             if (newCount !== item.count) {
                 item.count = newCount;
                 updateUI();
@@ -311,8 +312,8 @@
             });
 
             // Обновляем информацию в корзине
-            document.getElementById('total-items').textContent = 
-                totalItems === 0 ? 'Выберите товары' : 
+            document.getElementById('total-items').textContent =
+                totalItems === 0 ? 'Выберите товары' :
                 `${totalItems} ${pluralize(totalItems, 'товар', 'товара', 'товаров')}`;
             document.getElementById('total-price').textContent = `${totalPrice} ₽`;
             document.getElementById('order-button').disabled = totalItems === 0;
@@ -341,7 +342,7 @@
             document.body.appendChild(loading);
         }
 
-        function confirmOrder() {
+       function confirmOrder() {
             const order = [];
             Object.entries(products).forEach(([category, categoryData]) => {
                 categoryData.items.forEach(item => {
@@ -359,9 +360,13 @@
 
             if (order.length > 0) {
                 showLoading();
-                setTimeout(() => {
-                    Telegram.WebApp.sendData(JSON.stringify(order));
-                }, 500);
+                console.log("Отправляем данные:", JSON.stringify(order));  // Добавлено
+                let timeoutId = setTimeout(() => {
+                         // Действия, если через 5 секунд нет ответа
+                         document.querySelector('.loading').textContent = "Ошибка отправки. Проверьте подключение к интернету.";
+                         // (Опционально) Позволить пользователю попробовать снова
+                }, 5000);
+                Telegram.WebApp.sendData(JSON.stringify(order));
             }
         }
 
