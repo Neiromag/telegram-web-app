@@ -2,94 +2,135 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Заказ овощей</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
+        * {
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+
         body {
             font-family: -apple-system, system-ui, sans-serif;
-            background-color: #f5f5f5;
+            background-color: var(--tg-theme-bg-color, #f5f5f5);
+            color: var(--tg-theme-text-color, #000);
             margin: 0;
-            padding: 16px;
+            padding: 10px;
             padding-bottom: 80px;
+            user-select: none;
+            -webkit-user-select: none;
+            overflow-x: hidden;
         }
 
         .header {
             text-align: center;
             margin-bottom: 20px;
+            padding: 10px;
+            position: sticky;
+            top: 0;
+            background: var(--tg-theme-bg-color, #f5f5f5);
+            z-index: 100;
         }
 
         .header h1 {
-            color: #2AABEE;
-            font-size: 24px;
+            color: var(--tg-theme-button-color, #2AABEE);
+            font-size: 22px;
             margin: 0;
         }
 
+        .header p {
+            margin: 5px 0 0;
+            color: var(--tg-theme-hint-color, #999);
+            font-size: 14px;
+        }
+
         .category {
-            background: white;
-            border-radius: 10px;
-            padding: 15px;
-            margin-bottom: 15px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            background: var(--tg-theme-secondary-bg-color, white);
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
 
         .category-title {
+            display: flex;
+            align-items: center;
             font-size: 18px;
-            font-weight: bold;
-            margin-bottom: 10px;
-            color: #333;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: var(--tg-theme-text-color, #333);
+            padding: 0 5px;
+        }
+
+        .category-icon {
+            margin-right: 8px;
+            font-size: 20px;
         }
 
         .item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 10px;
-            border-bottom: 1px solid #eee;
+            padding: 10px 5px;
+            border-radius: 8px;
+            margin-bottom: 5px;
+            transition: background-color 0.2s;
         }
 
-        .item:last-child {
-            border-bottom: none;
+        .item:active {
+            background-color: var(--tg-theme-secondary-bg-color, #f0f0f0);
         }
 
         .item-details {
             flex-grow: 1;
+            padding-right: 15px;
         }
 
         .item-name {
             font-weight: 500;
-            color: #333;
+            color: var(--tg-theme-text-color, #333);
+            margin-bottom: 2px;
         }
 
         .item-price {
             font-size: 14px;
-            color: #666;
+            color: var(--tg-theme-hint-color, #666);
         }
 
         .item-controls {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
+            padding: 3px;
+            border-radius: 8px;
+            background: var(--tg-theme-bg-color, #f5f5f5);
         }
 
-        button {
-            background-color: #2AABEE;
-            color: white;
+        .control-button {
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--tg-theme-button-color, #2AABEE);
+            color: var(--tg-theme-button-text-color, white);
             border: none;
-            border-radius: 5px;
-            padding: 8px 12px;
-            font-size: 16px;
+            border-radius: 8px;
+            font-size: 18px;
             cursor: pointer;
+            transition: opacity 0.2s;
         }
 
-        button:disabled {
-            background-color: #ccc;
+        .control-button:disabled {
+            opacity: 0.5;
         }
 
         .count {
             min-width: 30px;
             text-align: center;
-            font-weight: bold;
+            font-weight: 600;
+            font-size: 16px;
         }
 
         .cart {
@@ -97,117 +138,142 @@
             bottom: 0;
             left: 0;
             right: 0;
-            background: white;
+            background: var(--tg-theme-secondary-bg-color, white);
             padding: 15px;
-            box-shadow: 0 -2px 4px rgba(0,0,0,0.1);
+            box-shadow: 0 -1px 5px rgba(0,0,0,0.1);
             display: flex;
             justify-content: space-between;
             align-items: center;
+            z-index: 1000;
         }
 
         .cart-info {
+            line-height: 1.4;
+        }
+
+        .cart-count {
+            font-size: 14px;
+            color: var(--tg-theme-hint-color, #666);
+        }
+
+        .cart-total {
             font-size: 16px;
-            font-weight: bold;
+            font-weight: 600;
+            color: var(--tg-theme-text-color, #333);
         }
 
         #order-button {
-            background-color: #34C759;
+            background-color: var(--tg-theme-button-color, #2AABEE);
+            color: var(--tg-theme-button-text-color, white);
+            border: none;
+            border-radius: 8px;
             padding: 12px 20px;
             font-size: 16px;
-            font-weight: bold;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.2s;
         }
 
-        @media (prefers-color-scheme: dark) {
-            body {
-                background-color: #1E1E1E;
-                color: white;
-            }
-            .category {
-                background: #2C2C2C;
-            }
-            .item {
-                border-bottom-color: #3D3D3D;
-            }
-            .item-name {
-                color: white;
-            }
-            .item-price {
-                color: #BBB;
-            }
-            .cart {
-                background: #2C2C2C;
-            }
-            .category-title {
-                color: white;
-            }
+        #order-button:disabled {
+            opacity: 0.7;
+        }
+
+        .loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 18px;
+            z-index: 2000;
         }
     </style>
 </head>
 <body>
     <div class="header">
-        <h1>Заказ овощей</h1>
+        <h1>Свежие овощи</h1>
+        <p>Доставка в день заказа</p>
     </div>
 
     <div id="categories-container"></div>
 
     <div class="cart">
         <div class="cart-info">
-            <div id="total-items">Товаров: 0</div>
-            <div id="total-price">Итого: 0 ₽</div>
+            <div class="cart-count" id="total-items">Выберите товары</div>
+            <div class="cart-total" id="total-price">0 ₽</div>
         </div>
-        <button id="order-button" onclick="sendOrder()" disabled>
+        <button id="order-button" onclick="confirmOrder()" disabled>
             Оформить заказ
         </button>
     </div>
 
     <script>
         const products = {
-            "Популярные": [
-                { name: "Картофель", price: 45 },
-                { name: "Морковь", price: 35 },
-                { name: "Лук", price: 30 },
-                { name: "Помидоры", price: 159 },
-                { name: "Огурцы", price: 119 }
-            ],
-            "Зелень": [
-                { name: "Укроп", price: 39 },
-                { name: "Петрушка", price: 39 },
-                { name: "Базилик", price: 89 },
-                { name: "Салат", price: 89 }
-            ],
-            "Другие овощи": [
-                { name: "Перец", price: 229 },
-                { name: "Баклажаны", price: 169 },
-                { name: "Кабачки", price: 89 },
-                { name: "Тыква", price: 79 }
-            ]
+            "Популярные": {
+                icon: "🔥",
+                items: [
+                    { name: "Картофель", price: 45 },
+                    { name: "Морковь", price: 35 },
+                    { name: "Лук", price: 30 },
+                    { name: "Помидоры", price: 159 },
+                    { name: "Огурцы", price: 119 }
+                ]
+            },
+            "Зелень": {
+                icon: "🌿",
+                items: [
+                    { name: "Укроп", price: 39 },
+                    { name: "Петрушка", price: 39 },
+                    { name: "Базилик", price: 89 },
+                    { name: "Салат", price: 89 }
+                ]
+            },
+            "Другие овощи": {
+                icon: "🥬",
+                items: [
+                    { name: "Перец", price: 229 },
+                    { name: "Баклажаны", price: 169 },
+                    { name: "Кабачки", price: 89 },
+                    { name: "Тыква", price: 79 }
+                ]
+            }
         };
 
         // Добавляем поле count ко всем продуктам
         Object.values(products).forEach(category => {
-            category.forEach(product => product.count = 0);
+            category.items.forEach(product => product.count = 0);
         });
 
         function createCategoriesHTML() {
             const container = document.getElementById('categories-container');
             
-            Object.entries(products).forEach(([categoryName, items]) => {
+            Object.entries(products).forEach(([categoryName, category]) => {
                 const categoryDiv = document.createElement('div');
                 categoryDiv.className = 'category';
                 
                 categoryDiv.innerHTML = `
-                    <div class="category-title">${categoryName}</div>
-                    ${items.map((item, index) => `
+                    <div class="category-title">
+                        <span class="category-icon">${category.icon}</span>
+                        ${categoryName}
+                    </div>
+                    ${category.items.map((item, index) => `
                         <div class="item">
                             <div class="item-details">
                                 <div class="item-name">${item.name}</div>
                                 <div class="item-price">${item.price} ₽/кг</div>
                             </div>
                             <div class="item-controls">
-                                <button onclick="updateCount('${categoryName}', ${index}, -1)" 
+                                <button class="control-button" 
+                                        onclick="updateCount('${categoryName}', ${index}, -1)" 
                                         ${item.count === 0 ? 'disabled' : ''}>-</button>
                                 <span class="count">${item.count}</span>
-                                <button onclick="updateCount('${categoryName}', ${index}, 1)">+</button>
+                                <button class="control-button" 
+                                        onclick="updateCount('${categoryName}', ${index}, 1)">+</button>
                             </div>
                         </div>
                     `).join('')}
@@ -218,7 +284,7 @@
         }
 
         function updateCount(category, index, delta) {
-            const item = products[category][index];
+            const item = products[category].items[index];
             const newCount = Math.max(0, item.count + delta);
             
             if (newCount !== item.count) {
@@ -238,22 +304,47 @@
 
             // Подсчитываем итоги
             Object.values(products).forEach(category => {
-                category.forEach(item => {
+                category.items.forEach(item => {
                     totalItems += item.count;
                     totalPrice += item.price * item.count;
                 });
             });
 
             // Обновляем информацию в корзине
-            document.getElementById('total-items').textContent = `Товаров: ${totalItems}`;
-            document.getElementById('total-price').textContent = `Итого: ${totalPrice} ₽`;
+            document.getElementById('total-items').textContent = 
+                totalItems === 0 ? 'Выберите товары' : 
+                `${totalItems} ${pluralize(totalItems, 'товар', 'товара', 'товаров')}`;
+            document.getElementById('total-price').textContent = `${totalPrice} ₽`;
             document.getElementById('order-button').disabled = totalItems === 0;
         }
 
-        function sendOrder() {
+        function pluralize(number, one, two, five) {
+            let n = Math.abs(number);
+            n %= 100;
+            if (n >= 5 && n <= 20) {
+                return five;
+            }
+            n %= 10;
+            if (n === 1) {
+                return one;
+            }
+            if (n >= 2 && n <= 4) {
+                return two;
+            }
+            return five;
+        }
+
+        function showLoading() {
+            const loading = document.createElement('div');
+            loading.className = 'loading';
+            loading.textContent = 'Оформляем заказ...';
+            document.body.appendChild(loading);
+        }
+
+        function confirmOrder() {
             const order = [];
-            Object.entries(products).forEach(([category, items]) => {
-                items.forEach(item => {
+            Object.entries(products).forEach(([category, categoryData]) => {
+                categoryData.items.forEach(item => {
                     if (item.count > 0) {
                         order.push({
                             category,
@@ -267,14 +358,17 @@
             });
 
             if (order.length > 0) {
-                Telegram.WebApp.sendData(JSON.stringify(order));
-                Telegram.WebApp.close();
+                showLoading();
+                setTimeout(() => {
+                    Telegram.WebApp.sendData(JSON.stringify(order));
+                }, 500);
             }
         }
 
         // Инициализация
         document.addEventListener('DOMContentLoaded', () => {
             Telegram.WebApp.ready();
+            Telegram.WebApp.expand();
             createCategoriesHTML();
         });
     </script>
