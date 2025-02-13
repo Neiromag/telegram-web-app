@@ -6,76 +6,96 @@
     <title>Заказ овощей</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        /* ... (ваш CSS, без изменений) ... */
+        /* Общие стили и сброс */
         * {
             -webkit-tap-highlight-color: transparent;
             touch-action: manipulation;
+            box-sizing: border-box; /* Важно для корректного расчета размеров */
         }
 
         body {
-            font-family: -apple-system, system-ui, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             background-color: var(--tg-theme-bg-color, #f5f5f5);
             color: var(--tg-theme-text-color, #000);
             margin: 0;
-            padding: 10px;
-            padding-bottom: 80px;
+            padding: 0; /* Убрал отступы по умолчанию */
             user-select: none;
             -webkit-user-select: none;
             overflow-x: hidden;
+            display: flex; /* Используем flexbox для основного макета */
+            flex-direction: column; /* Элементы располагаются вертикально */
+            min-height: 100vh; /* Занимаем всю высоту экрана */
         }
 
+        /* Хедер */
         .header {
             text-align: center;
-            margin-bottom: 20px;
-            padding: 10px;
+            padding: 16px; /* Увеличил отступы */
             position: sticky;
             top: 0;
             background: var(--tg-theme-bg-color, #f5f5f5);
             z-index: 100;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Добавил тень */
+            border-bottom: 1px solid var(--tg-theme-secondary-bg-color, #eee);
         }
 
         .header h1 {
             color: var(--tg-theme-button-color, #2AABEE);
-            font-size: 22px;
-            margin: 0;
+            font-size: 24px; /* Увеличил шрифт */
+            margin: 0 0 8px; /* Добавил отступ снизу */
+            font-weight: 600; /* Сделал шрифт жирнее */
         }
 
         .header p {
-            margin: 5px 0 0;
+            margin: 0;
             color: var(--tg-theme-hint-color, #999);
             font-size: 14px;
         }
 
+        /* Контейнер для категорий (основная часть) */
+        #categories-container {
+            flex-grow: 1; /* Занимает все доступное пространство */
+            overflow-y: auto; /* Добавляем прокрутку, если контент не помещается */
+            padding: 16px; /* Отступы вокруг категорий */
+        }
+
+        /* Категория */
         .category {
             background: var(--tg-theme-secondary-bg-color, white);
-            border-radius: 12px;
-            padding: 12px;
-            margin-bottom: 12px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border-radius: 16px; /* Скругление углов */
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            transition: transform 0.1s ease-in-out; /* Плавное увеличение при наведении */
+        }
+
+        .category:hover {
+            transform: scale(1.02); /* Немного увеличиваем при наведении */
         }
 
         .category-title {
             display: flex;
             align-items: center;
-            font-size: 18px;
+            font-size: 20px; /* Увеличил шрифт */
             font-weight: 600;
-            margin-bottom: 12px;
+            margin-bottom: 16px; /* Увеличил отступ */
             color: var(--tg-theme-text-color, #333);
-            padding: 0 5px;
+            padding: 0; /* Убрал лишние отступы */
         }
 
         .category-icon {
-            margin-right: 8px;
-            font-size: 20px;
+            margin-right: 12px; /* Увеличил отступ */
+            font-size: 24px; /* Увеличил размер иконки */
         }
 
+        /* Элемент списка (товар) */
         .item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 10px 5px;
-            border-radius: 8px;
-            margin-bottom: 5px;
+            padding: 12px 8px; /* Увеличил отступы */
+            border-radius: 12px; /* Скругление углов */
+            margin-bottom: 8px;
             transition: background-color 0.2s;
         }
 
@@ -85,13 +105,14 @@
 
         .item-details {
             flex-grow: 1;
-            padding-right: 15px;
+            padding-right: 16px; /* Увеличил отступ */
         }
 
         .item-name {
-            font-weight: 500;
+            font-weight: 600; /* Сделал шрифт жирнее */
             color: var(--tg-theme-text-color, #333);
-            margin-bottom: 2px;
+            margin-bottom: 4px; /* Добавил отступ */
+            font-size: 16px;
         }
 
         .item-price {
@@ -99,49 +120,61 @@
             color: var(--tg-theme-hint-color, #666);
         }
 
+        /* Блок управления количеством */
         .item-controls {
             display: flex;
             align-items: center;
-            gap: 8px;
-            padding: 3px;
-            border-radius: 8px;
+            gap: 12px; /* Увеличил отступ между кнопками */
+            padding: 8px; /* Увеличил отступы */
+            border-radius: 10px; /* Скругление углов */
             background: var(--tg-theme-bg-color, #f5f5f5);
+          border: 1px solid var(--tg-theme-button-color, #2AABEE);
         }
 
         .control-button {
-            width: 36px;
-            height: 36px;
+            width: 40px; /* Увеличил размер */
+            height: 40px;
             display: flex;
             align-items: center;
             justify-content: center;
             background-color: var(--tg-theme-button-color, #2AABEE);
             color: var(--tg-theme-button-text-color, white);
             border: none;
-            border-radius: 8px;
-            font-size: 18px;
+            border-radius: 50%; /* Круглые кнопки */
+            font-size: 20px; /* Увеличил шрифт */
             cursor: pointer;
-            transition: opacity 0.2s;
+            transition: background-color 0.2s, transform 0.1s; /* Плавное изменение цвета и размера */
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Добавил тень */
+        }
+
+        .control-button:active {
+            background-color: var(--tg-theme-button-color-hover, #1E88E5); /* Цвет при нажатии */
+            transform: scale(0.95); /* Немного уменьшаем при нажатии */
         }
 
         .control-button:disabled {
             opacity: 0.5;
+            cursor: default; /* Меняем курсор */
+            background-color: var(--tg-theme-button-color, #2AABEE); /* Цвет для отключенной кнопки */
+            box-shadow: none;
         }
 
         .count {
-            min-width: 30px;
+            min-width: 40px; /* Увеличил минимальную ширину */
             text-align: center;
             font-weight: 600;
-            font-size: 16px;
+            font-size: 18px; /* Увеличил шрифт */
         }
 
+        /* Корзина */
         .cart {
-            position: fixed;
+            position: sticky; /* Корзина прилипает к низу */
             bottom: 0;
             left: 0;
             right: 0;
             background: var(--tg-theme-secondary-bg-color, white);
-            padding: 15px;
-            box-shadow: 0 -1px 5px rgba(0,0,0,0.1);
+            padding: 16px; /* Увеличил отступы */
+            box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -158,7 +191,7 @@
         }
 
         .cart-total {
-            font-size: 16px;
+            font-size: 18px; /* Увеличил шрифт */
             font-weight: 600;
             color: var(--tg-theme-text-color, #333);
         }
@@ -167,31 +200,59 @@
             background-color: var(--tg-theme-button-color, #2AABEE);
             color: var(--tg-theme-button-text-color, white);
             border: none;
-            border-radius: 8px;
-            padding: 12px 20px;
-            font-size: 16px;
+            border-radius: 12px; /* Скругление углов */
+            padding: 14px 24px; /* Увеличил отступы */
+            font-size: 18px; /* Увеличил шрифт */
             font-weight: 600;
             cursor: pointer;
-            transition: opacity 0.2s;
+            transition: background-color 0.2s, transform 0.1s; /* Плавное изменение цвета и размера */
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Добавил тень */
+        }
+
+
+        #order-button:active {
+            background-color: var(--tg-theme-button-color-hover, #1E88E5); /* Цвет при нажатии */
+            transform: scale(0.95); /* Немного уменьшаем при нажатии */
         }
 
         #order-button:disabled {
             opacity: 0.7;
+            cursor: default; /* Меняем курсор */
+            background-color: var(--tg-theme-secondary-bg-color, #ddd);  /* Другой цвет для отключенной кнопки */
+            color: var(--tg-theme-hint-color, #888); /*  Другой цвет текста*/
+            box-shadow: none;
         }
 
+        /* Анимация загрузки */
         .loading {
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0,0,0,0.5);
+            background: rgba(0, 0, 0, 0.7); /* Более темный фон */
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
-            font-size: 18px;
+            font-size: 20px; /* Увеличил шрифт */
             z-index: 2000;
+            font-weight: 600;
+        }
+        .loading::after { /* Добавляем анимированный спиннер */
+            content: "";
+            display: inline-block;
+            width: 32px;
+            height: 32px;
+            margin-left: 10px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
     </style>
 </head>
@@ -252,34 +313,36 @@
 
         function createCategoriesHTML() {
             const container = document.getElementById('categories-container');
+              container.innerHTML = ''; // Очистка контейнера
 
             Object.entries(products).forEach(([categoryName, category]) => {
                 const categoryDiv = document.createElement('div');
                 categoryDiv.className = 'category';
+
+                let itemsHTML = category.items.map((item, index) => `
+                    <div class="item">
+                        <div class="item-details">
+                            <div class="item-name">${item.name}</div>
+                            <div class="item-price">${item.price} ₽/кг</div>
+                        </div>
+                        <div class="item-controls">
+                            <button class="control-button"
+                                    onclick="updateCount('${categoryName}', ${index}, -1)"
+                                    ${item.count === 0 ? 'disabled' : ''}>-</button>
+                            <span class="count">${item.count}</span>
+                            <button class="control-button"
+                                    onclick="updateCount('${categoryName}', ${index}, 1)">+</button>
+                        </div>
+                    </div>
+                `).join('');
 
                 categoryDiv.innerHTML = `
                     <div class="category-title">
                         <span class="category-icon">${category.icon}</span>
                         ${categoryName}
                     </div>
-                    ${category.items.map((item, index) => `
-                        <div class="item">
-                            <div class="item-details">
-                                <div class="item-name">${item.name}</div>
-                                <div class="item-price">${item.price} ₽/кг</div>
-                            </div>
-                            <div class="item-controls">
-                                <button class="control-button" 
-                                        onclick="updateCount('${categoryName}', ${index}, -1)" 
-                                        ${item.count === 0 ? 'disabled' : ''}>-</button>
-                                <span class="count">${item.count}</span>
-                                <button class="control-button" 
-                                        onclick="updateCount('${categoryName}', ${index}, 1)">+</button>
-                            </div>
-                        </div>
-                    `).join('')}
+                    ${itemsHTML}
                 `;
-
                 container.appendChild(categoryDiv);
             });
         }
@@ -294,17 +357,13 @@
             }
         }
 
+
         function updateUI() {
             let totalItems = 0;
             let totalPrice = 0;
 
-            // Обновляем HTML
-            const container = document.getElementById('categories-container');
-            container.innerHTML = '';
-            createCategoriesHTML();
-
-            // Подсчитываем итоги
-            Object.values(products).forEach(category => {
+            // Пересчитываем итоги (можно вынести в отдельную функцию)
+             Object.values(products).forEach(category => {
                 category.items.forEach(item => {
                     totalItems += item.count;
                     totalPrice += item.price * item.count;
@@ -317,6 +376,7 @@
                 `${totalItems} ${pluralize(totalItems, 'товар', 'товара', 'товаров')}`;
             document.getElementById('total-price').textContent = `${totalPrice} ₽`;
             document.getElementById('order-button').disabled = totalItems === 0;
+            createCategoriesHTML(); // Обновляем список товаров
         }
 
         function pluralize(number, one, two, five) {
@@ -343,38 +403,58 @@
         }
 
        function confirmOrder() {
-            const order = [];
-            Object.entries(products).forEach(([category, categoryData]) => {
-                categoryData.items.forEach(item => {
-                    if (item.count > 0) {
-                        order.push({
-                            category,
-                            name: item.name,
-                            count: item.count,
-                            price: item.price,
-                            total: item.count * item.price
-                        });
-                    }
-                });
-            });
+          const order = [];
+          Object.entries(products).forEach(([category, categoryData]) => {
+              categoryData.items.forEach(item => {
+                  if (item.count > 0) {
+                      order.push({
+                          category,
+                          name: item.name,
+                          count: item.count,
+                          price: item.price,
+                          total: item.count * item.price
+                      });
+                  }
+              });
+          });
 
-            if (order.length > 0) {
-                showLoading();
-                console.log("Отправляем данные:", JSON.stringify(order));  // Добавлено
-                let timeoutId = setTimeout(() => {
-                         // Действия, если через 5 секунд нет ответа
-                         document.querySelector('.loading').textContent = "Ошибка отправки. Проверьте подключение к интернету.";
-                         // (Опционально) Позволить пользователю попробовать снова
-                }, 5000);
-                Telegram.WebApp.sendData(JSON.stringify(order));
-            }
+        if (order.length > 0) {
+            showLoading();
+
+            let timeoutId = setTimeout(() => {
+              // Действия, если через 5 секунд нет ответа
+              const loadingEl = document.querySelector('.loading');
+                if (loadingEl) {
+                  loadingEl.textContent = "Ошибка отправки. Проверьте подключение к интернету.";
+                  loadingEl.style.cursor = "pointer"; //делаем элемент кликабельным
+                  loadingEl.onclick = () => {
+                    loadingEl.remove();
+                    confirmOrder();
+                  }
+                  //удаляем спиннер
+                  const spinner = loadingEl.querySelector('.loading::after');
+                  if(spinner) spinner.remove();
+
+                }
+
+            }, 5000);
+
+            Telegram.WebApp.sendData(JSON.stringify(order));
+            Telegram.WebApp.onEvent('mainButtonClicked', function() {
+              clearTimeout(timeoutId);
+              document.querySelector('.loading').remove(); // Убираем лоадер при любом ответе
+
+            });
         }
+      }
 
         // Инициализация
         document.addEventListener('DOMContentLoaded', () => {
             Telegram.WebApp.ready();
             Telegram.WebApp.expand();
             createCategoriesHTML();
+            // Telegram.WebApp.MainButton.text = "Просмотреть"; //пример работы с кнопкой
+            // Telegram.WebApp.MainButton.show();
         });
     </script>
 </body>
