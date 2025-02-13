@@ -3,220 +3,280 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Заказ свежих овощей</title>
+    <title>Заказ овощей</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         body {
-            font-family: 'Arial', sans-serif;
-            text-align: center;
-            background-color: #f8f9fa; /* Светлый фон */
-            color: #343a40; /* Темный текст для контраста */
-            padding: 20px;
+            font-family: -apple-system, system-ui, sans-serif;
+            background-color: #f5f5f5;
             margin: 0;
+            padding: 16px;
+            padding-bottom: 80px;
         }
 
-        h2 {
-            color: #28a745; /* Зеленый цвет для заголовка */
+        .header {
+            text-align: center;
             margin-bottom: 20px;
         }
 
-        #items-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center; /* Выравнивание элементов по центру */
-            width: 90%; /* Занимает 90% ширины контейнера */
-            max-width: 600px; /* Увеличена максимальная ширина контейнера */
-            margin: 0 auto; /* Центрирование контейнера на странице */
+        .header h1 {
+            color: #2AABEE;
+            font-size: 24px;
+            margin: 0;
         }
 
         .category {
-            margin-bottom: 25px; /* Отступ между категориями */
-            width: 100%; /* Категория занимает всю ширину items-container */
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
-        .category h3 {
-            color: #343a40; /* Темный цвет для заголовка категории */
-            text-align: left; /* Выравнивание заголовка по левому краю */
-            padding-left: 15px; /* Отступ слева для заголовка */
-            margin-bottom: 10px; /* Отступ снизу для заголовка */
-            border-bottom: 2px solid #28a745; /* Зеленая линия под заголовком */
-            padding-bottom: 5px; /* Отступ между заголовком и линией */
-        }
-
-        .items-group {
-            /* Стили для контейнера группы товаров (если нужны дополнительные, например, flex-direction: column;) */
+        .category-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
         }
 
         .item {
             display: flex;
             justify-content: space-between;
-            align-items: center; /* Выравнивание элементов по вертикали по центру */
-            padding: 15px;
-            margin-bottom: 10px;
-            background-color: #ffffff; /* Белый фон для карточки товара */
-            border-radius: 10px; /* Закругленные углы */
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Легкая тень */
-            width: 100%; /* Карточка товара занимает всю ширину контейнера */
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .item:last-child {
+            border-bottom: none;
+        }
+
+        .item-details {
+            flex-grow: 1;
         }
 
         .item-name {
-            font-weight: bold;
-            color: #495057; /* Темно-серый цвет для названия товара */
+            font-weight: 500;
+            color: #333;
         }
 
-        .item-count {
-            margin-left: 10px;
-            color: #6c757d; /* Серый цвет для количества */
+        .item-price {
+            font-size: 14px;
+            color: #666;
         }
 
-        .button-group button {
-            background-color: #28a745; /* Зеленый цвет для кнопок */
+        .item-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        button {
+            background-color: #2AABEE;
             color: white;
             border: none;
-            padding: 8px 15px;
-            margin: 0 5px;
             border-radius: 5px;
+            padding: 8px 12px;
+            font-size: 16px;
             cursor: pointer;
-            font-size: 1em;
-            transition: background-color 0.3s ease; /* Плавный эффект при наведении */
-            transform: scale(1); /* Предотвращение "увеличения" кнопки */
         }
 
-        .button-group button:hover {
-            background-color: #218838; /* Более темный зеленый при наведении */
+        button:disabled {
+            background-color: #ccc;
         }
 
-        .button-group button:active {
-            transform: scale(0.95); /* Небольшое уменьшение при нажатии (опционально) */
-            background-color: #1e702d; /* Еще более темный зеленый при нажатии (опционально) */
+        .count {
+            min-width: 30px;
+            text-align: center;
+            font-weight: bold;
         }
 
+        .cart {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            padding: 15px;
+            box-shadow: 0 -2px 4px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .cart-info {
+            font-size: 16px;
+            font-weight: bold;
+        }
 
         #order-button {
-            background-color: #007bff; /* Синий цвет для кнопки "Отправить заказ" */
-            color: white;
-            border: none;
-            padding: 12px 25px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 1.2em;
-            margin-top: 20px;
-            transition: background-color 0.3s ease;
+            background-color: #34C759;
+            padding: 12px 20px;
+            font-size: 16px;
+            font-weight: bold;
         }
 
-        #order-button:hover {
-            background-color: #0056b3; /* Более темный синий при наведении */
+        @media (prefers-color-scheme: dark) {
+            body {
+                background-color: #1E1E1E;
+                color: white;
+            }
+            .category {
+                background: #2C2C2C;
+            }
+            .item {
+                border-bottom-color: #3D3D3D;
+            }
+            .item-name {
+                color: white;
+            }
+            .item-price {
+                color: #BBB;
+            }
+            .cart {
+                background: #2C2C2C;
+            }
+            .category-title {
+                color: white;
+            }
         }
     </style>
 </head>
 <body>
-    <h2>Выберите свежие овощи для заказа</h2>
-
-    <div id="items-container">
-        <div class="category">
-            <h3>Корнеплоды</h3>
-            <div id="root-vegetables" class="items-group"></div>
-        </div>
-
-        <div class="category">
-            <h3>Листовые овощи</h3>
-            <div id="leafy-vegetables" class="items-group"></div>
-        </div>
-
-        <div class="category">
-            <h3>Плоды</h3>
-            <div id="fruits-vegetables" class="items-group"></div>
-        </div>
-
-        <div class="category">
-            <h3>Зелень</h3>
-            <div id="greens-vegetables" class="items-group"></div>
-        </div>
-
-        <div class="category">
-            <h3>Экзотические овощи</h3>
-            <div id="exotic-vegetables" class="items-group"></div>
-        </div>
+    <div class="header">
+        <h1>Заказ овощей</h1>
     </div>
 
-    <button id="order-button" onclick="sendOrder()">Отправить заказ</button>
+    <div id="categories-container"></div>
+
+    <div class="cart">
+        <div class="cart-info">
+            <div id="total-items">Товаров: 0</div>
+            <div id="total-price">Итого: 0 ₽</div>
+        </div>
+        <button id="order-button" onclick="sendOrder()" disabled>
+            Оформить заказ
+        </button>
+    </div>
 
     <script>
-        let items = {
-            "Корнеплоды": [
-                { name: "Картофель", count: 0 },
-                { name: "Морковь", count: 0 },
-                { name: "Свекла", count: 0 },
-                { name: "Репа", count: 0 },
-                { name: "Редис", count: 0 },
-                { name: "Бат
-                Помидоры", count: 0 }
-            ],
-            "Листовые овощи": [
-                { name: "Салат", count: 0 },
-                { name: "Шпинат", count: 0 },
-                { name: "Капуста", count: 0 },
-                { name: "Петрушка", count: 0 },
-                { name: "Укроп", count: 0 },
-                { name: "Руккола", count: 0 }
-            ],
-            "Плоды": [
-                { name: "Огурцы", count: 0 },
-                { name: "Перец", count: 0 },
-                { name: "Баклажаны", count: 0 },
-                { name: "Кабачки", count: 0 },
-                { name: "Тыква", count: 0 },
-                { name: "Горох", count: 0 }
+        const products = {
+            "Популярные": [
+                { name: "Картофель", price: 45 },
+                { name: "Морковь", price: 35 },
+                { name: "Лук", price: 30 },
+                { name: "Помидоры", price: 159 },
+                { name: "Огурцы", price: 119 }
             ],
             "Зелень": [
-                { name: "Базилик", count: 0 },
-                { name: "Кинза", count: 0 },
-                { name: "Мята", count: 0 },
-                { name: "Розмарин", count: 0 },
-                { name: "Тимьян", count: 0 }
+                { name: "Укроп", price: 39 },
+                { name: "Петрушка", price: 39 },
+                { name: "Базилик", price: 89 },
+                { name: "Салат", price: 89 }
             ],
-            "Экзотические овощи": [
-                { name: "Артишок", count: 0 },
-                { name: "Спаржа", count: 0 },
-                { name: "Авокадо", count: 0 },
-                { name: "Брокколи", count: 0 },
-                { name: "Цветная капуста", count: 0 }
+            "Другие овощи": [
+                { name: "Перец", price: 229 },
+                { name: "Баклажаны", price: 169 },
+                { name: "Кабачки", price: 89 },
+                { name: "Тыква", price: 79 }
             ]
         };
 
-        function renderItems() {
-            Object.keys(items).forEach(categoryName => {
-                let html = "";
-                items[categoryName].forEach((item, index) => {
-                    html += `<div class='item'>
-                                <span class='item-name'>${item.name}</span>
-                                <span class='item-count'>${item.count} кг</span>
-                                <div class='button-group'>
-                                    <button onclick='changeCount("${categoryName}", ${index}, 1)'>+</button>
-                                    <button onclick='changeCount("${categoryName}", ${index}, -1)'>-</button>
-                                </div>
-                             </div>`;
-                });
-                document.getElementById(categoryName.toLowerCase().replace(' ', '-') + "-vegetables").innerHTML = html;
+        // Добавляем поле count ко всем продуктам
+        Object.values(products).forEach(category => {
+            category.forEach(product => product.count = 0);
+        });
+
+        function createCategoriesHTML() {
+            const container = document.getElementById('categories-container');
+            
+            Object.entries(products).forEach(([categoryName, items]) => {
+                const categoryDiv = document.createElement('div');
+                categoryDiv.className = 'category';
+                
+                categoryDiv.innerHTML = `
+                    <div class="category-title">${categoryName}</div>
+                    ${items.map((item, index) => `
+                        <div class="item">
+                            <div class="item-details">
+                                <div class="item-name">${item.name}</div>
+                                <div class="item-price">${item.price} ₽/кг</div>
+                            </div>
+                            <div class="item-controls">
+                                <button onclick="updateCount('${categoryName}', ${index}, -1)" 
+                                        ${item.count === 0 ? 'disabled' : ''}>-</button>
+                                <span class="count">${item.count}</span>
+                                <button onclick="updateCount('${categoryName}', ${index}, 1)">+</button>
+                            </div>
+                        </div>
+                    `).join('')}
+                `;
+                
+                container.appendChild(categoryDiv);
             });
         }
 
-        function changeCount(categoryName, index, delta) {
-            items[categoryName][index].count = Math.max(0, items[categoryName][index].count + delta);
-            renderItems();
+        function updateCount(category, index, delta) {
+            const item = products[category][index];
+            const newCount = Math.max(0, item.count + delta);
+            
+            if (newCount !== item.count) {
+                item.count = newCount;
+                updateUI();
+            }
+        }
+
+        function updateUI() {
+            let totalItems = 0;
+            let totalPrice = 0;
+
+            // Обновляем HTML
+            const container = document.getElementById('categories-container');
+            container.innerHTML = '';
+            createCategoriesHTML();
+
+            // Подсчитываем итоги
+            Object.values(products).forEach(category => {
+                category.forEach(item => {
+                    totalItems += item.count;
+                    totalPrice += item.price * item.count;
+                });
+            });
+
+            // Обновляем информацию в корзине
+            document.getElementById('total-items').textContent = `Товаров: ${totalItems}`;
+            document.getElementById('total-price').textContent = `Итого: ${totalPrice} ₽`;
+            document.getElementById('order-button').disabled = totalItems === 0;
         }
 
         function sendOrder() {
-            let order = [];
-            Object.values(items).forEach(categoryItems => {
-                order = order.concat(categoryItems.filter(i => i.count > 0));
+            const order = [];
+            Object.entries(products).forEach(([category, items]) => {
+                items.forEach(item => {
+                    if (item.count > 0) {
+                        order.push({
+                            category,
+                            name: item.name,
+                            count: item.count,
+                            price: item.price,
+                            total: item.count * item.price
+                        });
+                    }
+                });
             });
-            Telegram.WebApp.sendData(JSON.stringify(order));
-            Telegram.WebApp.close();
+
+            if (order.length > 0) {
+                Telegram.WebApp.sendData(JSON.stringify(order));
+                Telegram.WebApp.close();
+            }
         }
 
-        Telegram.WebApp.ready();
-        renderItems();
+        // Инициализация
+        document.addEventListener('DOMContentLoaded', () => {
+            Telegram.WebApp.ready();
+            createCategoriesHTML();
+        });
     </script>
 </body>
 </html>
